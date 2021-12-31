@@ -1,0 +1,166 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Application Inventory",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "variables": {
+    "workbookContent": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "WinAppInv_CL\r\n| where Application_s != ''\r\n| distinct DeviceName_s, Application_s, Publisher_s, Version_d\r\n| summarize count(DeviceName_s) by Application_s\r\n| render columnchart",
+            "size": 0,
+            "timeContext": {
+              "durationMs": 604800000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "query - 3"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Total Windows Application Inventory\n---\n\nLists unique applications targeted across tenant. Does not list all versions. For versioning, type Application name below."
+          },
+          "name": "text - 2"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "WinAppInv_CL\r\n| where  isnotempty(Application_s)\r\n| distinct Application_s, Publisher_s\r\n| sort by Application_s asc",
+            "size": 0,
+            "timeContext": {
+              "durationMs": 2592000000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "crossComponentResources": [
+              "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}",
+              "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}"
+            ],
+            "gridSettings": {
+              "sortBy": [
+                {
+                  "itemKey": "Application_s",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "sortBy": [
+              {
+                "itemKey": "Application_s",
+                "sortOrder": 1
+              }
+            ]
+          },
+          "name": "query - 2"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Check existing Application versions\r\n---\r\n\r\nReturn all versions matching the specified apps"
+          },
+          "name": "text - 5"
+        },
+        {
+          "type": 9,
+          "content": {
+            "version": "KqlParameterItem/1.0",
+            "parameters": [
+              {
+                "id": "872f1c74-0213-40c7-9ed2-c1a511d9fd8e",
+                "version": "KqlParameterItem/1.0",
+                "name": "AppName",
+                "label": "Application Name",
+                "type": 1,
+                "description": "List Application Versions",
+                "value": "'Edge'",
+                "timeContext": {
+                  "durationMs": 86400000
+                }
+              }
+            ],
+            "style": "above",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "parameters - 4"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "WinAppInv_CL\r\n| where Application_s contains {AppName:value}\r\n| distinct Application_s, Publisher_s, Version_s\r\n| sort by Version_s asc",
+            "size": 0,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "query - 3"
+        }
+      ],
+      "isLocked": false,
+      "fallbackResourceIds": [
+        "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2021-03-08",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[string(variables('workbookContent'))]",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}

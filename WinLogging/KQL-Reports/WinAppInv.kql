@@ -1,0 +1,16 @@
+WinAppInv_CL
+| where isnotempty(Application_s)
+| distinct Application_s, Publisher_s
+| sort by Application_s asc
+
+WinAppInv_CL
+| where isnotempty(DeviceId_g)
+| distinct DeviceName_s, Application_s, Application_g, Publisher_s, Version_d
+| summarize count(Application_s) by DeviceName_s
+| render barchart
+
+WinAppInv_CL
+| where DeviceId_g contains  {DeviceId: value}
+| where isnotempty(DeviceId_g)
+| distinct Application_s, Publisher_s, Version_s, InstallDate_s
+

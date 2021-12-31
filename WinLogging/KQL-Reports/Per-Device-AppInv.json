@@ -1,0 +1,128 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Per Device Application Inventory ",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will be shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "variables": {
+    "workbookContent": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 1,
+          "content": {
+            "json": "## Application Inventory by Device"
+          },
+          "name": "text - 2"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "WinAppInv_CL\n| where isnotempty(DeviceId_g)\n| distinct DeviceName_s, Application_s, Application_g, Publisher_s, Version_d\n| summarize count(Application_s) by DeviceName_s\n| render barchart",
+            "size": 1,
+            "timeContext": {
+              "durationMs": 172800000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "query - 2"
+        },
+        {
+          "type": 9,
+          "content": {
+            "version": "KqlParameterItem/1.0",
+            "parameters": [
+              {
+                "id": "663e2aa7-7e66-4c5b-be4b-f9bc7f495bd6",
+                "version": "KqlParameterItem/1.0",
+                "name": "DeviceId",
+                "type": 1,
+                "description": "filtering by device",
+                "isRequired": true,
+                "value": "\"{Input Device ID Here}\"",
+                "timeContext": {
+                  "durationMs": 2592000000
+                },
+                "label": "Intune Device ID"
+              }
+            ],
+            "style": "above",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "parameters - 3"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "WinAppInv_CL\r\n| where DeviceId_g contains {DeviceId:value}\r\n| where isnotempty(DeviceId_g)\r\n| distinct Application_s, Publisher_s, Version_s, InstallDate_s",
+            "size": 0,
+            "timeContext": {
+              "durationMs": 2592000000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "query - 3"
+        }
+      ],
+      "isLocked": false,
+      "fallbackResourceIds": [
+        "/subscriptions/{Subscription}/resourcegroups/{ResourceGroup}/providers/microsoft.operationalinsights/workspaces/{LogAnalyticsWorkspace}"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2021-03-08",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[string(variables('workbookContent'))]",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
