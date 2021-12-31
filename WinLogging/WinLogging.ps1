@@ -59,7 +59,13 @@ foreach ($module in $requiredModules) {
 
 # Connect to Azure
 Write-Verbose "Connecting to Azure"
-Connect-AzAccount -TenantId $tid -Subscription $azSubscription -CertificateThumbprint $cThumbprint -ApplicationId $aadAppId -ServicePrincipal -Verbose -ErrorAction Stop
+$azConnect = @{
+    TenantId              = $tid
+    Subscription          = $azSubscription
+    CertificateThumbprint = $cThumbprint
+    ApplicationId         = $aadAppId
+}
+Connect-AzAccount @azConnect -ServicePrincipal -Verbose -ErrorAction Stop
 
 try {
     # Download & extract scripts
