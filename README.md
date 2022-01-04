@@ -4,4 +4,4 @@
 
 ## Contributions welcome
 
-If you would like to contribute to this project, please feel free to open a Pull request. For more information on how to do so in the Community branch - [Read how to contribute in GitHub's documentation](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files#editing-files-in-another-users-repository).
+If you would like to contribute to this project, please feel free to open a Pull request against the Community branch. For more information on how to do so - [Read how to contribute in GitHub's documentation](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files#editing-files-in-another-users-repository).
