@@ -1,18 +1,16 @@
 ### Edit Below Variables ###
 $fileName = 'WinLogging' # Desired Filename
 $logname = '.log' # Name of Log file
-$azRG = '' # Azure Resource Group
+$azRG = '' # Azure Resource Group for Azure Function
 $azStorage = '' # Azure Storage Name
 $azContainer = '' # Azure Storage Container
 $tid = '' # Tenant ID
 $azSubscription = '' # Azure Subscription
-$wkspc = '' # Log Analytics Workspace
+$wkspc = '' # Log Analytics Workspace for Azure Function
 $aadAppId = '' # Application (client) ID of Service Principal/App Registration
 $kv = '' # Name of KeyVault
-$kvs1 = '' # Connect-MSGraph KeyVault Secret Name
-$kvs1Unm = '' # Connect-MSGraph Username KeyVault Secret Name
 $kvSecretName = '' # Azure Function SAS Token KeyVault Secret Name
-$cSubject = '' # Certificate SubjectName. If not matches another cert, you may want to use Thumbprint directly 
+$cSubject = '' # Certificate SubjectName. If not matches another cert, you may want to use Thumbprint directly
 $schTskLocation = "$env:HOMEDRIVE\tmp\$fileName" # Scheduled Task Directory
 $cPath = 'Cert:\CurrentUser\My\' # Certificate Path
 $requiredModules = "Microsoft.Graph.Intune", "Az.Accounts", "Az.Storage", "Az.Keyvault"
@@ -103,7 +101,7 @@ try {
             Move-Item -path $tsFile.FullName -Destination $schTskLocation -Verbose
             Write-Verbose "Move Definition files to $schTskLocation" -Verbose
             $Def = Get-ChildItem $files | Where-Object { $_.Name -like "UploadGroup-*" }
-            Move-Item $Def -Destination $schTskLocation -Verbose              
+            Move-Item $Def -Destination $schTskLocation -Verbose
         }
         $actions = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "$schTskLocation\$fileName\$schTsk"
         $trigger = New-ScheduledTaskTrigger -Daily -At $curTime
@@ -116,7 +114,7 @@ try {
     else {
         Write-Verbose "Scheduled Task $fileName exists. No action" -Verbose
     }
-    
+
     . "$files\$schTsk"
 
     # Remove blob (zip)
