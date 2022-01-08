@@ -3,7 +3,7 @@ $uploadlag = 'WinUpdateKBs'
 
 # CodeBlock to customize for logging
 Write-Verbose "Collecting Update KBs" -Verbose
-$appliedKBs = get-wmiobject -class win32_quickfixengineering | Select-Object Description, HotFixID, InstalledOn
+$appliedKBs = Get-CimInstance -class win32_quickfixengineering | Select-Object Description, HotFixID, InstalledOn
 $results = $appliedKBs
 
 # Create custom object for uploading formatted data as JSON to Log Analytics
