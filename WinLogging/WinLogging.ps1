@@ -9,11 +9,11 @@ $azSubscription = '' # Azure Subscription
 $wkspc = '' # Log Analytics Workspace for Azure Function
 $aadAppId = '' # Application (client) ID of Service Principal/App Registration
 $kv = '' # Name of KeyVault
-$kvSecretName = '' # Azure Function SAS Token KeyVault Secret Name
+$kvSecretName = '' # Azure Storage Context SaS Token
 $cSubject = '' # Certificate SubjectName. If not matches another cert, you may want to use Thumbprint directly
 $schTskLocation = "$env:HOMEDRIVE\tmp\$fileName" # Scheduled Task Directory
 $cPath = 'Cert:\CurrentUser\My\' # Certificate Path
-$requiredModules = "Microsoft.Graph.Intune", "Az.Accounts", "Az.Storage", "Az.Keyvault"
+$requiredModules = "Az.Accounts", "Az.Storage", "Az.Keyvault"
 $laScript = 'Task_TriggerLogging.ps1'
 $azBlob = "$fileName.zip"
 $curTime = Get-Date -Format HH:mm
@@ -28,7 +28,7 @@ $files = $PSScriptRoot
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
 # Create Logging
-$transcriptFile = "$files\$logname" # log file path. Example: C:\tmp\AppReport.log
+$transcriptFile = "$files\$logname" # log file path. Example: 'C:\tmp\Solution.log'
 If ($transcriptFile) {
     try { Stop-Transcript | Out-Null }
     catch {}
@@ -100,7 +100,7 @@ try {
             Write-Verbose "Move Scheduled Task script to $schTskLocation" -Verbose
             Move-Item -path $tsFile.FullName -Destination $schTskLocation -Verbose
             Write-Verbose "Move Definition files to $schTskLocation" -Verbose
-            $Def = Get-ChildItem $files | Where-Object { $_.Name -like "UploadGroup-*" }
+            $Def = Get-ChildItem $files | Where-Object { $_.Name -like "Def-*" }
             Move-Item $Def -Destination $schTskLocation -Verbose
         }
         $actions = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "$schTskLocation\$fileName\$schTsk"
